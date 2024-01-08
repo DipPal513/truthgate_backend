@@ -3,7 +3,6 @@ import User from "../models/user.model.js";
 
 
 // create
-
 export const createPost = async (req, res) => {
     try {
         // storing post data
@@ -80,7 +79,6 @@ export const deletePost = async (req, res) => {
     }
 }
 // update 
-
 export const updatePost = async (req, res) => {
     console.log('update post');
 }
@@ -112,7 +110,7 @@ export const likedAndDisLikedPost = async (req, res) => {
     }
 }
 
-// 
+// getting post of whom i follow
 export const getPostOfFollowing = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -126,4 +124,26 @@ export const getPostOfFollowing = async (req, res) => {
     }
 }
 
+// update caption
+export const updateCaption = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        // if post not found
+        if (!post) {
+            return res.status(404).send({ success: false, message: "Post not found" });
+        }
+        if (post.owner.toString() !== req.user._id.toString()) {
+            return res.status(500).send({ success: false, message: "Unauthorized access!" });
+        }
+        post.caption = req.body.caption;
+        await post.save();
+        return res.status(200).send({ success: true, message: "post updated" });
 
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ success: false, message: "error in updating post" });
+
+
+    }
+}
