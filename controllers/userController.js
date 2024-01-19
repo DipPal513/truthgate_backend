@@ -7,7 +7,7 @@ export const registerUser = async (req, res) => {
         const { username, email, password } = req.body;
         const user = await User.findOne({ email });
         if (user) {
-            return res.status(500).send({ success: false, message: "user already exists please login.." })
+            return res.status(200).send({ success: false, message: "user already exists please login.." })
         }
         const encryptedPass = await bcrypt.hash(password, 10)
         const newUser = await User.create({
@@ -15,9 +15,11 @@ export const registerUser = async (req, res) => {
         });
         // token generation
         const token = await newUser.generateToken();
-        res.status(201).cookie("token", token, { expires:"7d", httpOnly: true }).json({
+        const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        res.status(201).cookie("token", token, { expires: expirationDate }).json({
             success: true,
-            message: "User logged in!",
+            message: "Welcome to TruthGate",
             user: newUser,
             token
         });
@@ -27,6 +29,7 @@ export const registerUser = async (req, res) => {
         res.status(500).send({ success: false, messae: "user register failed..", error })
     }
 }
+
 // login
 export const loginUser = async (req, res) => {
     try {
@@ -47,14 +50,16 @@ export const loginUser = async (req, res) => {
 
         if (!isValidPass) {
             console.log('Invalid password');
-            return res.status(401).send({ success: false, message: "Password does not match." });
+            return res.status(200).send({ success: false, message: "Invalid Password" });
         }
 
         // token generation
         const token = await user.generateToken();
-        res.status(200).cookie("token", token, { expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), httpOnly: true }).json({
+        const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        res.status(200).cookie("token", token, { expires: expirationDate }).json({
             success: true,
-            message: "User logged in!",
+            message: "Welcome to TruthGate!",
             user,
             token
         });
@@ -79,13 +84,13 @@ export const follow_unfollow_User = async (req, res) => {
             const indexOfFollowing = loggedInUser.following.indexOf(userTofollow._id);
             const indexOfFollowers = userTofollow.followers.indexOf(loggedInUser._id);
 
-
             loggedInUser.following.splice(indexOfFollowing, 1);
             userTofollow.followers.splice(indexOfFollowers, 1);
 
             loggedInUser.save()
             userTofollow.save()
-            return res.status(200).send({ success: true, messae: "user UnFollowed" });
+
+            return res.status(200).send({ success: true, message: "user UnFollowed" });
         } else {
             // changing follow status
             loggedInUser.following.push(userTofollow._id);
@@ -105,7 +110,7 @@ export const follow_unfollow_User = async (req, res) => {
 // logout 
 export const logoutUser = async (req, res) => {
     try {
-        return res.status(200).cookie("token", null, { httpOnly: true, expires: 0 }).send({ success: true, message: "Logged out.." })
+        return res.status(200).cookie("token", null, { expires: 0 }).send({ success: true, message: "Logged out.." })
     } catch (error) {
         console.log(error);
         return res.status(500).send({ success: false, message: "Error in logout.." })
@@ -168,7 +173,6 @@ export const updateProfile = async (req, res) => {
 }
 
 // delete profile
-
 export const deleteMyProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -178,7 +182,7 @@ export const deleteMyProfile = async (req, res) => {
         await User.findByIdAndDelete(req.user._id);
         // logout user after deleting profile
 
-        res.cookie("token", null, { expires: 0, httpOnly: true });
+        res.cookie("token", null, { expires: 0 });
         // deleting all post of user
         for (let i = 0; i < posts.length; i++) {
             const post = await Post.findById(posts[i]);
@@ -193,20 +197,58 @@ export const deleteMyProfile = async (req, res) => {
 }
 
 // my profile
-
-export const myProfile = async (req,res) =>{
+export const myProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).populate("posts")  
-        res.status(200).send({
-            success:true,
-            message:"View profile!",
+        const user = await User.findById(req.user._id).populate("posts");
+        if (!user) {
+            return res.status(200).send({
+                success: false,
+                message: "Unauthorized!",
+                user
+            });
+        }
+        return res.status(200).send({
+            success: true,
+            message: "View profile!",
             user
-        })
+        });
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            success:false,
-            message:"error in viewing profile!"
+            success: false,
+            message: "error in viewing profile!"
         })
+    }
+}
+
+// get all users
+export const allUsers = async (req, res) => {
+    try {
+        const users = User.find();
+        res.status(200).send({ success: true, users });
+    } catch (error) {
+        console.log(error);
+    }
+}
+// single user
+
+export const getSingleUser = async (req, res) => {
+    try {
+        const requiredUser =await User.findById(req.params.id);
+       
+        if (!requiredUser) {
+            return res.status(500).send({
+                success: false,
+                message: "user not found!"
+            });
+        }
+        return res.status(200).send({
+            message: "user found!",
+            success: true,
+            user:requiredUser
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({success:false,message:error.message})
     }
 }

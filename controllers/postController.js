@@ -16,14 +16,18 @@ export const createPost = async (req, res) => {
         }
         // creating new post
         const newPost = await Post.create(newPostData);
+
         // finding user by id for storing post of own
         const user = await User.findById(req?.user?._id);
+
         // pushing post to user
         user.posts.push(newPost?._id);
+
         //finally saving user
         await user.save();
+
         // sending data
-        res.status(200).send({ success: true, post: newPost })
+        return res.status(200).send({ success: true, message: "Successfully posted!", post: newPost })
 
     }
     catch (error) {
@@ -34,16 +38,13 @@ export const createPost = async (req, res) => {
         })
     }
 }
-
 // delete 
 export const deletePost = async (req, res) => {
     try {
         // finding post by id
         const post = await Post.findById(req.params.id);
 
-        console.log("req user", req.user._id);
-        console.log("req id", req.params.id);
-        console.log(post.caption)
+
         // if not found
         if (!post) {
             return res.status(404).send({ success: false, message: "post not found!" })
@@ -61,7 +62,8 @@ export const deletePost = async (req, res) => {
 
         const user = await User.findById(req?.user._id);
         const index = user.posts.indexOf(req.params.id);
-        console.log("index", index);
+
+        //    
         user.posts.splice(index, 1);
         await user.save()
         // 
@@ -72,6 +74,7 @@ export const deletePost = async (req, res) => {
 
     } catch (error) {
         console.log(error);
+        
         return res.status(200).json({
             success: false,
             message: "Post deletation failed..."
@@ -85,9 +88,9 @@ export const updatePost = async (req, res) => {
 // like and dislike
 export const likedAndDisLikedPost = async (req, res) => {
     try {
-        console.log(req.params.id);
+
         const post = await Post.findById(req.params.id);
-        console.log(req.user);
+
         if (!post) {
             res.status(404).send({ success: false, message: "Post not found.." })
         }
@@ -95,13 +98,13 @@ export const likedAndDisLikedPost = async (req, res) => {
             const index = await post.likes;
             post.likes.splice(index, 1);
             await post.save();
-            return res.status(200).send({ success: true, message: "post unliked" })
+            return res.status(200).send({ success: true, message: "post unliked", liked: false })
         }
         else {
 
             await post?.likes?.push(req.user._id);
             await post.save()
-            res.status(200).send({ success: true, message: "Post Liked" })
+            res.status(200).send({ success: true, message: "Post Liked", liked: true });
         }
 
     } catch (error) {
@@ -109,20 +112,60 @@ export const likedAndDisLikedPost = async (req, res) => {
         res.status(500).send({ success: false, message: "Opps something went wrong.." })
     }
 }
-
 // getting post of whom i follow
 export const getPostOfFollowing = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        const user = await User.findById(req.user._id)
+        if (!user) {
+            return res.status(500).send({ success: false, message: "Unauthorized" })
+        }
 
         const posts = await Post.find({
             owner: { $in: user.following }
-        })
-        res.status(200).json({ success: true, message: "success", posts })
+        }).populate("owner likes comments.user");
+
+        return res.status(200).json({ success: true, message: "success", posts })
     } catch (error) {
         console.log(error);
     }
 }
+export const addComment = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        const comment = req.body.comment;
+
+        // Check if the post exists
+        if (!post) {
+            return res.status(404).send({ success: false, message: "post not found" });
+        }
+
+        // Check if the comment exists
+        let commentExists = -1;
+
+        if (post.comments) {
+            post.comments.forEach((item, index) => {
+                if (item.user && item.user.toString() === req.user._id.toString()) {
+                    commentExists = index;
+                }
+            });
+        }
+
+        if (commentExists !== -1) {
+            // Comment exists, update it
+            post.comments[commentExists].comment = comment;
+            await post.save();
+            return res.status(200).send({ success: true, message: "comment updated", comment });
+        } else {
+            // Comment does not exist, add a new one
+            post.comments.push({ user: req.user._id }, { comment });
+            await post.save();
+            return res.status(201).send({ success: true, message: "commented!", comment });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ success: false, message: "there was an error while commenting..!" });
+    }
+};
 
 // update caption
 export const updateCaption = async (req, res) => {
@@ -147,3 +190,4 @@ export const updateCaption = async (req, res) => {
 
     }
 }
+

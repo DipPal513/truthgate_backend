@@ -1,7 +1,9 @@
 import express from 'express';
 import {
+    allUsers,
     deleteMyProfile,
     follow_unfollow_User,
+    getSingleUser,
     loginUser,
     logoutUser,
     myProfile,
@@ -29,6 +31,10 @@ router.get("/follow/:id", isAuthenticate, follow_unfollow_User);
 // delete my Profile
 router.delete("/delete/me", isAuthenticate, deleteMyProfile);
 // view my profile
-router.get("/myprofile", isAuthenticate, myProfile);
+router.get("/me", isAuthenticate, myProfile);
+// view all users
+router.get("/allUsers", isAuthenticate, allUsers);
+// view single user
+router.get("/user/:id", isAuthenticate, getSingleUser);
 
 export default router;
