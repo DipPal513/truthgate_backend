@@ -13,6 +13,9 @@ export const createPost = async (req, res) => {
         });
         console.log(req.body)
         // storing post data
+        if(!req.body.image || !req.body.caption){
+            return res.status(200).json({success:false,message:"Photo and text must be provided.."})
+        }
         const newPostData = {
             caption: req.body.caption,
             image: {

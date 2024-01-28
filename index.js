@@ -14,8 +14,8 @@ const port = process.env.PORT || 3000;
 (async () => {
     try {
         await connectDB();
-        
-        app.use(express.json({limit:"30mb"}));
+
+        app.use(express.json({ limit: "30mb" }));
         app.use(cookieParser());
         app.use(express.urlencoded({ extended: true }));
         cloudinary.config({
@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
         })
 
         // Adjust CORS settings based on your production requirements
-        app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+        app.use(cors({ origin: "*", credentials: true }));
 
         // Routes (Ensure your routes don't need the /api/v1 prefix again)
         app.use("/api/v1", postRouter);
