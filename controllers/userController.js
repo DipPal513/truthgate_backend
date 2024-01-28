@@ -90,7 +90,7 @@ export const follow_unfollow_User = async (req, res) => {
             loggedInUser.save()
             userTofollow.save()
 
-            return res.status(200).send({ success: true, message: "user UnFollowed" });
+            return res.status(200).send({ success: true, message: "user UnFollowed",follow:false });
         } else {
             // changing follow status
             loggedInUser.following.push(userTofollow._id);
@@ -99,7 +99,7 @@ export const follow_unfollow_User = async (req, res) => {
             await loggedInUser.save()
             await userTofollow.save();
             // finally
-            return res.status(200).send({ success: true, messae: "user followed" });
+            return res.status(200).send({ success: true, messae: "user followed",follow:true });
         }
     } catch (error) {
         console.log(error);
@@ -210,7 +210,7 @@ export const myProfile = async (req, res) => {
         return res.status(200).send({
             success: true,
             message: "View profile!",
-            user
+            user 
         });
     } catch (error) {
         console.log(error);
@@ -224,9 +224,11 @@ export const myProfile = async (req, res) => {
 // get all users
 export const allUsers = async (req, res) => {
     try {
-        const users = User.find();
+        const users = await User.find();
+        console.log(users)
         res.status(200).send({ success: true, users });
     } catch (error) {
+        res.status(500).send({ success: false, message:"an error occured" });
         console.log(error);
     }
 }

@@ -5,19 +5,24 @@ import postRouter from './routes/postRoute.js';
 import userRouter from './routes/userRoute.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
-
 const app = express();
 const port = process.env.PORT || 3000;
 
 (async () => {
     try {
         await connectDB();
-
-        app.use(express.json());
+        
+        app.use(express.json({limit:"30mb"}));
         app.use(cookieParser());
         app.use(express.urlencoded({ extended: true }));
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_NAME,
+            api_key: process.env.API_KEY,
+            api_secret: process.env.API_SECRET,
+        })
 
         // Adjust CORS settings based on your production requirements
         app.use(cors({ origin: "http://localhost:3000", credentials: true }));

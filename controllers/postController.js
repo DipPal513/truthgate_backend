@@ -1,16 +1,23 @@
 import Post from "../models/post.model.js"
 import User from "../models/user.model.js";
-
+import {v2 as cloudinary} from 'cloudinary';
 
 // create
 export const createPost = async (req, res) => {
+    console.log(req.body)
     try {
+        // 
+        
+        const myCloud = await cloudinary.uploader.upload(req.body.image,{
+            folder:"posts"
+        });
+        console.log(req.body)
         // storing post data
         const newPostData = {
             caption: req.body.caption,
             image: {
-                url: "req.body.url",
-                public_id: "req.body.public_id"
+                url: myCloud.secure_url,
+                public_id:myCloud.public_id
             },
             owner: req.user._id
         }
@@ -31,6 +38,7 @@ export const createPost = async (req, res) => {
 
     }
     catch (error) {
+        console.log(error)
         // error
         res.status(500).send({
             success: false,
@@ -38,6 +46,7 @@ export const createPost = async (req, res) => {
         })
     }
 }
+
 // delete 
 export const deletePost = async (req, res) => {
     try {
@@ -74,17 +83,19 @@ export const deletePost = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        
+
         return res.status(200).json({
             success: false,
             message: "Post deletation failed..."
         })
     }
 }
+
 // update 
 export const updatePost = async (req, res) => {
     console.log('update post');
 }
+
 // like and dislike
 export const likedAndDisLikedPost = async (req, res) => {
     try {
@@ -92,16 +103,15 @@ export const likedAndDisLikedPost = async (req, res) => {
         const post = await Post.findById(req.params.id);
 
         if (!post) {
-            res.status(404).send({ success: false, message: "Post not found.." })
+            return res.status(404).send({ success: false, message: "Post not found.." })
         }
-        if (post?.likes?.includes(req.user._id)) {
+        if (post.likes.includes(req.user._id)) {
             const index = await post.likes;
             post.likes.splice(index, 1);
             await post.save();
             return res.status(200).send({ success: true, message: "post unliked", liked: false })
         }
         else {
-
             await post?.likes?.push(req.user._id);
             await post.save()
             res.status(200).send({ success: true, message: "Post Liked", liked: true });
@@ -112,23 +122,28 @@ export const likedAndDisLikedPost = async (req, res) => {
         res.status(500).send({ success: false, message: "Opps something went wrong.." })
     }
 }
+
 // getting post of whom i follow
 export const getPostOfFollowing = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id)
+        // 
+        const user = await User.findById(req.user._id);
+        // 
         if (!user) {
             return res.status(500).send({ success: false, message: "Unauthorized" })
         }
-
+        // 
         const posts = await Post.find({
             owner: { $in: user.following }
         }).populate("owner likes comments.user");
 
-        return res.status(200).json({ success: true, message: "success", posts })
+        return res.status(200).json({ success: true, message: "success", posts:posts.reverse() });
     } catch (error) {
         console.log(error);
     }
 }
+
+// add comment
 export const addComment = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
@@ -157,7 +172,7 @@ export const addComment = async (req, res) => {
             return res.status(200).send({ success: true, message: "comment updated", comment });
         } else {
             // Comment does not exist, add a new one
-            post.comments.push({ user: req.user._id }, { comment });
+            post.comments.push({ user: req.user._id , comment });
             await post.save();
             return res.status(201).send({ success: true, message: "commented!", comment });
         }

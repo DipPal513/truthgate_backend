@@ -33,7 +33,7 @@ router.delete("/delete/me", isAuthenticate, deleteMyProfile);
 // view my profile
 router.get("/me", isAuthenticate, myProfile);
 // view all users
-router.get("/allUsers", isAuthenticate, allUsers);
+router.get("/users", isAuthenticate, allUsers);
 // view single user
 router.get("/user/:id", isAuthenticate, getSingleUser);
 
