@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
         const token = await user.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(200).cookie("token", token, { expires: expirationDate ,sameSite:"none",secure:true}).json({
+        res.status(200).cookie("token", token, { expires: expirationDate ,sameSite:"none",secure:true,httpOnly:true}).json({
             success: true,
             message: "Welcome to TruthGate!",
             user,
