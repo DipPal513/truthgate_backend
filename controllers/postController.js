@@ -130,8 +130,9 @@ export const likedAndDisLikedPost = async (req, res) => {
 export const getPostOfFollowing = async (req, res) => {
     try {
         // 
-        const user = await User.findById(req.user._id);
-        // 
+        const id = req.user._id;
+        const user = await User.findById(id);
+      console.log("this is the user ",user) 
         if (!user) {
             return res.status(500).send({ success: false, message: "Unauthorized" })
         }
@@ -139,7 +140,7 @@ export const getPostOfFollowing = async (req, res) => {
         const posts = await Post.find({
             owner: { $in: user.following }
         }).populate("owner likes comments.user");
-
+console.log(`all posts are `,posts)
         return res.status(200).json({ success: true, message: "success", posts:posts.reverse() });
     } catch (error) {
         console.log(error);

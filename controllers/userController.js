@@ -119,13 +119,13 @@ export const logoutUser = async (req, res) => {
 
 // update password
 export const updatePassword = async (req, res) => {
-    try {
+    try {    const isMatch = await bcrypt.compare(oldPassword, user.password);
+        console.log(oldPassword);
         // 
         const user = await User.findById(req.user._id);
         const { oldPassword, newPassword } = req.body;
         // comparing with stored password
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-        console.log(oldPassword);
+    
         if (!user) {
             res.status(500).send({ success: false, message: "Please login first" });
 
@@ -224,12 +224,16 @@ export const myProfile = async (req, res) => {
 // get all users
 export const allUsers = async (req, res) => {
     try {
+        const user = User.findById(req.user.id);
+        if(!user){
+        return res.status(401).send({ success: false, message:"unauthorized action!" });
+
+        }
         const users = await User.find();
-        console.log(users)
-        res.status(200).send({ success: true, users });
+        return res.status(200).send({ success: true, users });
     } catch (error) {
-        res.status(500).send({ success: false, message:"an error occured" });
         console.log(error);
+       return res.status(500).send({ success: false, message:"an error occured" });
     }
 }
 // single user
