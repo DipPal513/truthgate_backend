@@ -110,13 +110,14 @@ export const follow_unfollow_User = async (req, res) => {
 // logout 
 export const logoutUser = async (req, res) => {
     try {
-        return res.status(200).cookie("token", null, { expires: new Date(0), sameSite: "None", secure: true }).send({ success: true, message: "Logged out.." });
-
+        console.log("Logging out...");
+        res.clearCookie("token").status(200).send({ success: true, message: "Logged out.." });
     } catch (error) {
         console.log(error);
-        return res.status(500).send({ success: false, message: "Error in logout.." })
+        return res.status(500).send({ success: false, message: "Error in logout.." });
     }
 }
+
 
 // update password
 export const updatePassword = async (req, res) => {
