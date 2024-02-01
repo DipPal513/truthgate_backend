@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema({
         require: [true, "email is required"]
 
     },
+    bio:{
+        default:"",
+        type:String,
+        max:[80,"you cannot write more than 80 words"],
+        min:[10,"minimum 10 words required"]
+    },
     password: {
         type: String,
         require: [true, "password is required"]

@@ -57,7 +57,7 @@ export const loginUser = async (req, res) => {
         const token = await user.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(200).cookie("token", token, { expires: expirationDate ,sameSite:"none",secure:true,httpOnly:true}).json({
+        res.status(200).cookie("token", token, { expires: expirationDate, sameSite: "none", secure: true, httpOnly: true }).json({
             success: true,
             message: "Welcome to TruthGate!",
             user,
@@ -90,7 +90,7 @@ export const follow_unfollow_User = async (req, res) => {
             loggedInUser.save()
             userTofollow.save()
 
-            return res.status(200).send({ success: true, message: "user UnFollowed",follow:false });
+            return res.status(200).send({ success: true, message: "user UnFollowed", follow: false });
         } else {
             // changing follow status
             loggedInUser.following.push(userTofollow._id);
@@ -99,7 +99,7 @@ export const follow_unfollow_User = async (req, res) => {
             await loggedInUser.save()
             await userTofollow.save();
             // finally
-            return res.status(200).send({ success: true, messae: "user followed",follow:true });
+            return res.status(200).send({ success: true, messae: "user followed", follow: true });
         }
     } catch (error) {
         console.log(error);
@@ -121,13 +121,14 @@ export const logoutUser = async (req, res) => {
 
 // update password
 export const updatePassword = async (req, res) => {
-    try {    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    try {
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
         console.log(oldPassword);
         // 
         const user = await User.findById(req.user._id);
         const { oldPassword, newPassword } = req.body;
         // comparing with stored password
-    
+
         if (!user) {
             res.status(500).send({ success: false, message: "Please login first" });
 
@@ -212,7 +213,7 @@ export const myProfile = async (req, res) => {
         return res.status(200).send({
             success: true,
             message: "View profile!",
-            user 
+            user
         });
     } catch (error) {
         console.log(error);
@@ -227,23 +228,23 @@ export const myProfile = async (req, res) => {
 export const allUsers = async (req, res) => {
     try {
         const user = User.findById(req.user.id);
-        if(!user){
-        return res.status(401).send({ success: false, message:"unauthorized action!" });
+        if (!user) {
+            return res.status(401).send({ success: false, message: "unauthorized action!" });
 
         }
         const users = await User.find();
         return res.status(200).send({ success: true, users });
     } catch (error) {
         console.log(error);
-       return res.status(500).send({ success: false, message:"an error occured" });
+        return res.status(500).send({ success: false, message: "an error occured" });
     }
 }
 // single user
 
 export const getSingleUser = async (req, res) => {
     try {
-        const requiredUser =await User.findById(req.params.id);
-       
+        const requiredUser = await User.findById(req.params.id).populate("posts");
+
         if (!requiredUser) {
             return res.status(500).send({
                 success: false,
@@ -253,10 +254,28 @@ export const getSingleUser = async (req, res) => {
         return res.status(200).send({
             message: "user found!",
             success: true,
-            user:requiredUser
+            user: requiredUser
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send({success:false,message:error.message})
+        res.status(500).send({ success: false, message: error.message })
+    }
+}
+
+// bio
+
+export const bio = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const bioText = req.body.bio;
+        user.bio = bioText;
+        await user.save();
+        
+        res.status(201).send({ success: true, message: "bio added successfully!" })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(501).send({ success: false, message: "bio added failed!" })
+
     }
 }
