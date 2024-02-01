@@ -1,9 +1,12 @@
 import User from '../models/user.model.js';
 import bcrypt from "bcrypt";
-
+import cloudinary from 'cloudinary';
 // register
 export const registerUser = async (req, res) => {
     try {
+        const myCloud = await cloudinary.uploader.upload(req.body.image, {
+            folder: "profiles"
+        });
         const { username, email, password } = req.body;
         const user = await User.findOne({ email });
         if (user) {
@@ -11,7 +14,10 @@ export const registerUser = async (req, res) => {
         }
         const encryptedPass = await bcrypt.hash(password, 10)
         const newUser = await User.create({
-            username, email, password: encryptedPass, avatar: { public_id: "sample id", url: "sample url" }
+            username, email, password: encryptedPass, avatar: {
+                url: myCloud.secure_url,
+                public_id: myCloud.public_id
+            },
         });
         // token generation
         const token = await newUser.generateToken();
@@ -270,8 +276,8 @@ export const bio = async (req, res) => {
         const bioText = req.body.bio;
         user.bio = bioText;
         await user.save();
-        
-        res.status(201).send({ success: true, message: "bio added successfully!",userBio:user.bio });
+
+        res.status(201).send({ success: true, message: "bio added successfully!", userBio: user.bio });
 
     } catch (error) {
         console.log(error)
