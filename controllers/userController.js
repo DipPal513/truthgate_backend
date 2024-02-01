@@ -271,7 +271,7 @@ export const bio = async (req, res) => {
         user.bio = bioText;
         await user.save();
         
-        res.status(201).send({ success: true, message: "bio added successfully!" })
+        res.status(201).send({ success: true, message: "bio added successfully!",userBio:user.bio });
 
     } catch (error) {
         console.log(error)
