@@ -3,11 +3,11 @@ import bcrypt from "bcrypt";
 import cloudinary from 'cloudinary';
 // register
 export const registerUser = async (req, res) => {
+    const { username, email, password,avatar } = req.body;
     try {
-        const myCloud = await cloudinary.uploader.upload(req.body.image, {
+        const myCloud = await cloudinary.uploader.upload(avatar, {
             folder: "profiles"
         });
-        const { username, email, password } = req.body;
         const user = await User.findOne({ email });
         if (user) {
             return res.status(200).send({ success: false, message: "user already exists please login.." })
@@ -32,7 +32,7 @@ export const registerUser = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        res.status(500).send({ success: false, messae: "user register failed..", error })
+        res.status(500).send({ success: false, message: "user register failed..", error })
     }
 }
 
@@ -270,18 +270,29 @@ export const getSingleUser = async (req, res) => {
 
 // bio
 
+
+
 export const bio = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).send({ success: false, message: "User not found" });
+        }
+
         const bioText = req.body.bio;
+        if (!bioText) {
+            return res.status(400).send({ success: false, message: "Bio cannot be empty!" });
+        }
+
         user.bio = bioText;
         await user.save();
 
-        res.status(201).send({ success: true, message: "bio added successfully!", userBio: user.bio });
+        return res.status(201).send({ success: true, message: "Bio added successfully!", userBio: bioText });
 
     } catch (error) {
-        console.log(error)
-        return res.status(501).send({ success: false, message: "bio added failed!" })
-
+        console.log(error);
+        return res.status(500).send({ success: false, message: "Bio update failed!" });
     }
-}
+};

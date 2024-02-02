@@ -4,7 +4,7 @@ export const isAuthenticate = async (req, res, next) => {
     try {
         // get token
         const { token } = req?.cookies;
-        console.log(token)
+        
         // verification
         if (!token) {
             return res.status(401).send({ success: false, message: "please login first" });
