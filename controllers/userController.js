@@ -23,7 +23,7 @@ export const registerUser = async (req, res) => {
         const token = await newUser.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(201).cookie("token", token, { expires: expirationDate }).json({
+        res.status(201).cookie("token", token, { expires: expirationDate ,secure:true}).json({
             success: true,
             message: "Welcome to TruthGate",
             user: newUser,
@@ -65,7 +65,7 @@ export const loginUser = async (req, res) => {
 
         res.status(200).cookie("token", token, { expires: expirationDate, sameSite: "none", secure: true, httpOnly: true }).json({
            
-            message: "Welcome to TruthGate!",
+            message: "Welcome back!",
             user,
             token
         });
@@ -118,6 +118,7 @@ export const logoutUser = async (req, res) => {
     try {
         console.log("Logging out...");
         res.clearCookie("token").status(200).send({ success: true, message: "Logged out.." });
+
     } catch (error) {
         console.log(error);
         return res.status(500).send({ success: false, message: "Error in logout.." });
