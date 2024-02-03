@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import cloudinary from 'cloudinary';
 // register
 export const registerUser = async (req, res) => {
-    const { username, email, password,avatar } = req.body;
+    const { username, email, password, avatar } = req.body;
     try {
         const myCloud = await cloudinary.uploader.upload(avatar, {
             folder: "profiles"
@@ -23,7 +23,7 @@ export const registerUser = async (req, res) => {
         const token = await newUser.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(201).cookie("token", token, { expires: expirationDate ,secure:true}).json({
+        res.status(201).cookie("token", token, { expires: expirationDate, secure: true }).json({
             success: true,
             message: "Welcome to TruthGate",
             user: newUser,
@@ -63,8 +63,8 @@ export const loginUser = async (req, res) => {
         const token = await user.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(200).cookie("token", token, { expires: expirationDate, sameSite: "none", secure: true, httpOnly: true }).json({
-           
+        res.status(200).cookie("token", token, { expires: expirationDate, sameSite: "None", secure: true,path:"/",domain:"truthgate.vercel.app" }).json({
+            success: true,
             message: "Welcome back!",
             user,
             token
