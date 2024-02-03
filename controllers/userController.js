@@ -63,7 +63,7 @@ export const loginUser = async (req, res) => {
         const token = await user.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(200).cookie("token", token, { expires: expirationDate}).json({
+        res.status(200).cookie("token", token, { expires: expirationDate }).json({
             success: true,
             message: "Welcome back!",
             user,
