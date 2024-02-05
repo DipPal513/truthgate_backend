@@ -63,7 +63,11 @@ export const loginUser = async (req, res) => {
         const token = await user.generateToken();
         const expirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        res.status(200).cookie("token", token, { expires: expirationDate }).json({
+        res.status(200).cookie("token", token, {
+            expires: expirationDate, httpOnly: true,
+            sameSite: 'none',
+            secure: true
+        }).json({
             success: true,
             message: "Welcome back!",
             user,
@@ -130,7 +134,7 @@ export const logoutUser = async (req, res) => {
 export const updatePassword = async (req, res) => {
     try {
         const isMatch = await bcrypt.compare(oldPassword, user.password);
-        console.log(oldPassword);
+
         // 
         const user = await User.findById(req.user._id);
         const { oldPassword, newPassword } = req.body;
