@@ -66,7 +66,8 @@ export const loginUser = async (req, res) => {
         res.status(200).cookie("token", token, {
             expires: expirationDate, httpOnly: true,
             sameSite: 'none',
-            secure: true
+            secure: true,
+            domain: "truthgate.vercel.app", path: "/"
         }).json({
             success: true,
             message: "Welcome back!",
