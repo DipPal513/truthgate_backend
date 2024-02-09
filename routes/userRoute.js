@@ -3,6 +3,7 @@ import {
     allUsers,
     bio,
     deleteMyProfile,
+    findUser,
     follow_unfollow_User,
     getSingleUser,
     loginUser,
@@ -39,5 +40,7 @@ router.get("/users", isAuthenticate, allUsers);
 router.get("/user/:id", isAuthenticate, getSingleUser);
 // view single user
 router.put("/user/bio", isAuthenticate, bio);
+// view single user
+router.get("/users/search", findUser);
 
 export default router;

@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.generateToken = async function () {
     return jwt.sign({ _id: this._id }, "thisisjwtsecret");
 };
-
+userSchema.index({ username: 'text' });
 
 const User = mongoose.model("User", userSchema);
 

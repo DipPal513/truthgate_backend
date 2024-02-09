@@ -67,7 +67,6 @@ export const loginUser = async (req, res) => {
             expires: expirationDate, httpOnly: true,
             sameSite: 'none',
             secure: true,
-            domain: "truthgate.vercel.app", path: "/"
         }).json({
             success: true,
             message: "Welcome back!",
@@ -302,3 +301,20 @@ export const bio = async (req, res) => {
         return res.status(500).send({ success: false, message: "Bio update failed!" });
     }
 };
+
+
+// findUser 
+
+export const findUser = async (req, res) => {
+    try {
+        const { username } = req.query;
+        const users =await User.find({ $text: { $search: username } });
+        res.status(200).json({ success: true, users });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(
+            { success: false, message: error.message }
+        )
+    }
+}
