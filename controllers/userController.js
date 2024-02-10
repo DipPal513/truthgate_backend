@@ -125,15 +125,10 @@ export const follow_unfollow_User = async (req, res) => {
 export const logoutUser = async (req, res) => {
     try {
         console.log("Logging out...");
-        const cookies = req.cookies;
-        for (const cookieName in cookies) {
-            try {
-                res.clearCookie(cookieName, { expires: new Date(0) }); // Setting expiration date in the past
-                console.log(`Cleared cookie: ${cookieName}`);
-            } catch (error) {
-                console.error(`Error clearing cookie ${cookieName}: ${error}`);
-            }
-        }
+        // Clear the "token" cookie by setting its expiration date to the past
+        res.clearCookie("token", { expires: new Date(0) });
+        console.log("Cleared cookie: token");
+
         res.status(200).send({ success: true, message: "Logged out.." });
     } catch (error) {
         console.error("Error in logout:", error);
