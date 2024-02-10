@@ -127,16 +127,20 @@ export const logoutUser = async (req, res) => {
         console.log("Logging out...");
         const cookies = req.cookies;
         for (const cookie in cookies) {
-            res.clearCookie(cookie);
-            console.log(cookie)
+            try {
+                res.clearCookie(cookie);
+                console.log(`Cleared cookie: ${cookie}`);
+            } catch (error) {
+                console.error(`Error clearing cookie ${cookie}: ${error}`);
+            }
         }
         res.status(200).send({ success: true, message: "Logged out.." });
-
     } catch (error) {
-        console.log(error);
+        console.error("Error in logout:", error);
         return res.status(500).send({ success: false, message: "Error in logout.." });
     }
 }
+
 
 
 // update password
