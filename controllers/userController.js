@@ -126,12 +126,12 @@ export const logoutUser = async (req, res) => {
     try {
         console.log("Logging out...");
         const cookies = req.cookies;
-        for (const cookie in cookies) {
+        for (const cookieName in cookies) {
             try {
-                res.clearCookie(cookie);
-                console.log(`Cleared cookie: ${cookie}`);
+                res.clearCookie(cookieName, { expires: new Date(0) }); // Setting expiration date in the past
+                console.log(`Cleared cookie: ${cookieName}`);
             } catch (error) {
-                console.error(`Error clearing cookie ${cookie}: ${error}`);
+                console.error(`Error clearing cookie ${cookieName}: ${error}`);
             }
         }
         res.status(200).send({ success: true, message: "Logged out.." });
@@ -140,6 +140,7 @@ export const logoutUser = async (req, res) => {
         return res.status(500).send({ success: false, message: "Error in logout.." });
     }
 }
+
 
 
 
