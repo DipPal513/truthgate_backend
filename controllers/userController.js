@@ -205,7 +205,7 @@ export const deleteMyProfile = async (req, res) => {
         await User.findByIdAndDelete(req.user._id);
         // logout user after deleting profile
 
-        res.cookie("token", null, { expires: 0 });
+        res.clearCookie("token", { expires: new Date(0) ,secure:true,sameSite:"none",httpOnly:true});
         // deleting all post of user
         for (let i = 0; i < posts.length; i++) {
             const post = await Post.findById(posts[i]);
