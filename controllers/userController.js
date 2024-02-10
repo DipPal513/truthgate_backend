@@ -126,7 +126,7 @@ export const logoutUser = async (req, res) => {
     try {
         console.log("Logging out...");
         // Clear the "token" cookie by setting its expiration date to the past
-        res.clearCookie("token", { expires: new Date(0) ,sameSite:"none"});
+        res.clearCookie("token", { expires: new Date(0) ,sameSite:"none",secure:true});
         console.log("Cleared cookie: token");
 
         res.status(200).send({ success: true, message: "Logged out.." });
