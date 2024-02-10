@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
         })
 
         // Adjust CORS settings based on your production requirements
-        app.use(cors({ origin: ["http://localhost:3000","https://truthgate.vercel.app"], credentials: true }));
+        app.use(cors({ origin: "https://truthgate.vercel.app", credentials: true }));
 
         // Routes (Ensure your routes don't need the /api/v1 prefix again)
         app.use("/api/v1", postRouter);

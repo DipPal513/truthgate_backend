@@ -127,7 +127,8 @@ export const logoutUser = async (req, res) => {
         console.log("Logging out...");
         const cookies = req.cookies;
         for (const cookie in cookies) {
-            res.clearCookie(cookie)
+            res.clearCookie(cookie);
+            console.log(cookie)
         }
         res.status(200).send({ success: true, message: "Logged out.." });
 
