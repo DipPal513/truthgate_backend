@@ -10,7 +10,7 @@ router.post("/post/upload", isAuthenticate, createPost);
 router.get("/posts", isAuthenticate, getPostOfFollowing);
 // update caption
 router.put("/post/:id", isAuthenticate, updateCaption);
-// get post by id and like
+// get post by id and like 
 router.get("/post/:id", isAuthenticate, likedAndDisLikedPost);
 // comment
 router.put("/post/comment/:id", isAuthenticate, addComment);

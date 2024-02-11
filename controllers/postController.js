@@ -4,51 +4,53 @@ import {v2 as cloudinary} from 'cloudinary';
 
 // create
 export const createPost = async (req, res) => {
-    console.log(req.body)
+    console.log(req.body);
     try {
-        // 
-        
-        const myCloud = await cloudinary.uploader.upload(req.body.image,{
-            folder:"posts"
-        });
-        console.log(req.body)
-        // storing post data
-        if(!req.body.image || !req.body.caption){
-            return res.status(200).json({success:false,message:"Photo and text must be provided.."})
+        // Check if both image and caption are not provided
+        if (!req.body.image && !req.body.caption) {
+            return res.status(400).json({ success: false, message: "Photo or text must be provided." });
         }
+
+        let imageUrl = null;
+        let publicId = null;
+
+        // If image is provided, upload it to cloudinary
+        if (req.body.image) {
+            const myCloud = await cloudinary.uploader.upload(req.body.image, {
+                folder: "posts"
+            });
+            imageUrl = myCloud.secure_url;
+            publicId = myCloud.public_id;
+        }
+
+        // Create post data
         const newPostData = {
-            caption: req.body.caption,
-            image: {
-                url: myCloud.secure_url,
-                public_id:myCloud.public_id
-            },
+            caption: req.body.caption || "", // Caption might not be provided
+            image: imageUrl ? { url: imageUrl, public_id: publicId } : null,
             owner: req.user._id
-        }
-        // creating new post
+        };
+
+        // Create new post
         const newPost = await Post.create(newPostData);
 
-        // finding user by id for storing post of own
+        // Find user by id for storing post of own
         const user = await User.findById(req?.user?._id);
 
-        // pushing post to user
+        // Push post to user
         user.posts.push(newPost?._id);
 
-        //finally saving user
+        // Finally, save user
         await user.save();
 
-        // sending data
-        return res.status(200).send({ success: true, message: "Successfully posted!", post: newPost })
+        // Send response
+        return res.status(200).json({ success: true, message: "Successfully posted!", post: newPost });
+    } catch (error) {
+        console.log(error);
+        // Error
+        res.status(500).json({ success: false, message: "Error in post creating" });
+    }
+};
 
-    }
-    catch (error) {
-        console.log(error)
-        // error
-        res.status(500).send({
-            success: false,
-            message: "error in post creating",
-        })
-    }
-}
 
 // delete 
 export const deletePost = async (req, res) => {
